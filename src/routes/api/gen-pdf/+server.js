@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import PDFDocument from 'pdfkit';
 import { Readable } from 'stream';
+import { base } from '$app/paths';
 
 export async function POST({ request }) {
     const { fields, signature, date } = await request.json();
@@ -13,7 +14,8 @@ export async function POST({ request }) {
     doc.on('data', (chunk) => chunks.push(chunk));
 
     // Load and register the custom font
-    doc.registerFont('Footlight', 'static/footlight.TTF');
+    // doc.registerFont('Footlight', 'static/footlight.TTF');
+    doc.registerFont('Footlight', `${ base }/footlight.TTF`);
 
     // Helper function for adding text
     function addText(text, x, y, options = {}) {
@@ -155,8 +157,9 @@ export async function POST({ request }) {
     });
 
     // Add the image
-    // yPosition = doc.y + fieldSpacing;
+    yPosition = doc.y + fieldSpacing;
     // doc.image('static/arcform.jpg', 50, yPosition, { width: 500, height: 372 });
+    doc.image(`${ base }/arcform.jpg`, 50, yPosition, { width: 500, height: 372 });
 
     // Finalize the PDF
     doc.end();
