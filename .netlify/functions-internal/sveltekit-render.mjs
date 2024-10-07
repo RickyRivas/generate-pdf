@@ -9,19 +9,15 @@ function __memo(fn) {
 return {
 	appDir: "_app",
 	appPath: "_app",
-	assets: new Set([".DS_Store","admin/config.yml","admin/index.html","contactform.html","contactside.jpg","favicon.png","img01.jpg","og.jpg","sidebar.jpg","subscribecta.jpg","uploads/contactside.jpg","uploads/thumb.jpg"]),
-	mimeTypes: {".yml":"text/yaml",".html":"text/html",".jpg":"image/jpeg",".png":"image/png"},
+	assets: new Set(["admin/config.yml","admin/index.html","arcform.jpg","contactform.html","contactside.jpg","favicon.png","footlight.TTF","img01.jpg","og.jpg","sidebar.jpg","subscribecta.jpg","uploads/contactside.jpg","uploads/thumb.jpg"]),
+	mimeTypes: {".yml":"text/yaml",".html":"text/html",".jpg":"image/jpeg",".png":"image/png",".TTF":"font/ttf"},
 	_: {
-		client: {"start":"_app/immutable/entry/start.DjaPBjBR.js","app":"_app/immutable/entry/app.ZbiO6VEC.js","imports":["_app/immutable/entry/start.DjaPBjBR.js","_app/immutable/chunks/entry.CLUwkMOR.js","_app/immutable/chunks/scheduler.BT1NTskS.js","_app/immutable/entry/app.ZbiO6VEC.js","_app/immutable/chunks/preload-helper.D6kgxu3v.js","_app/immutable/chunks/scheduler.BT1NTskS.js","_app/immutable/chunks/index.D8FtfjPv.js"],"stylesheets":[],"fonts":[],"uses_env_dynamic_public":false},
+		client: {"start":"_app/immutable/entry/start.C9ndr1G0.js","app":"_app/immutable/entry/app.B5nHspgs.js","imports":["_app/immutable/entry/start.C9ndr1G0.js","_app/immutable/chunks/entry.DnUYEtZG.js","_app/immutable/chunks/scheduler.BTvvG7U3.js","_app/immutable/entry/app.B5nHspgs.js","_app/immutable/chunks/scheduler.BTvvG7U3.js","_app/immutable/chunks/index.YW6Nmxmu.js"],"stylesheets":[],"fonts":[],"uses_env_dynamic_public":false},
 		nodes: [
 			__memo(() => import('../server/nodes/0.js')),
 			__memo(() => import('../server/nodes/1.js')),
 			__memo(() => import('../server/nodes/2.js')),
-			__memo(() => import('../server/nodes/3.js')),
-			__memo(() => import('../server/nodes/5.js')),
-			__memo(() => import('../server/nodes/6.js')),
-			__memo(() => import('../server/nodes/7.js')),
-			__memo(() => import('../server/nodes/10.js'))
+			__memo(() => import('../server/nodes/3.js'))
 		],
 		routes: [
 			{
@@ -32,32 +28,11 @@ return {
 				endpoint: null
 			},
 			{
-				id: "/about",
-				pattern: /^\/about\/?$/,
+				id: "/api/gen-pdf",
+				pattern: /^\/api\/gen-pdf\/?$/,
 				params: [],
-				page: { layouts: [0,], errors: [1,], leaf: 3 },
-				endpoint: null
-			},
-			{
-				id: "/blog/[post]",
-				pattern: /^\/blog\/([^/]+?)\/?$/,
-				params: [{"name":"post","optional":false,"rest":false,"chained":false}],
-				page: { layouts: [0,], errors: [1,], leaf: 4 },
-				endpoint: null
-			},
-			{
-				id: "/contact",
-				pattern: /^\/contact\/?$/,
-				params: [],
-				page: { layouts: [0,], errors: [1,], leaf: 5 },
-				endpoint: null
-			},
-			{
-				id: "/documents",
-				pattern: /^\/documents\/?$/,
-				params: [],
-				page: { layouts: [0,], errors: [1,], leaf: 6 },
-				endpoint: null
+				page: null,
+				endpoint: __memo(() => import('../server/entries/endpoints/api/gen-pdf/_server.js'))
 			},
 			{
 				id: "/sitemap.xml",
@@ -70,7 +45,7 @@ return {
 				id: "/subdocuments",
 				pattern: /^\/subdocuments\/?$/,
 				params: [],
-				page: { layouts: [0,], errors: [1,], leaf: 7 },
+				page: { layouts: [0,], errors: [1,], leaf: 3 },
 				endpoint: null
 			}
 		],

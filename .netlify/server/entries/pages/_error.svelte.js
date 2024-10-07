@@ -1,4 +1,4 @@
-import { c as create_ssr_component, s as subscribe, v as validate_component, e as escape } from "../../chunks/ssr.js";
+import { c as create_ssr_component, b as subscribe, v as validate_component, g as escape } from "../../chunks/ssr.js";
 import { S as SubNavigation } from "../../chunks/SubNavigation.js";
 import { p as page } from "../../chunks/stores.js";
 const css = {

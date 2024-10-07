@@ -13,7 +13,7 @@ export async function POST({ request }) {
     doc.on('data', (chunk) => chunks.push(chunk));
 
     // Load and register the custom font
-    doc.registerFont('Footlight', 'static/footlight.TTF');
+    doc.registerFont('Footlight', '/footlight.TTF');
 
     // Helper function for adding text
     function addText(text, x, y, options = {}) {
@@ -156,7 +156,7 @@ export async function POST({ request }) {
 
     // Add the image
     yPosition = doc.y + fieldSpacing;
-    doc.image('static/arcform.jpg', 50, yPosition, { width: 500, height: 372 });
+    doc.image('/arcform.jpg', 50, yPosition, { width: 500, height: 372 });
 
     // Finalize the PDF
     doc.end();

@@ -22,12 +22,6 @@ function subscribe(store, ...callbacks) {
   const unsub = store.subscribe(...callbacks);
   return unsub.unsubscribe ? () => unsub.unsubscribe() : unsub;
 }
-function null_to_empty(value) {
-  return value;
-}
-function custom_event(type, detail, { bubbles = false, cancelable = false } = {}) {
-  return new CustomEvent(type, { detail, bubbles, cancelable });
-}
 let current_component;
 function set_current_component(component) {
   current_component = component;
@@ -36,25 +30,6 @@ function get_current_component() {
   if (!current_component)
     throw new Error("Function called outside component initialization");
   return current_component;
-}
-function createEventDispatcher() {
-  const component = get_current_component();
-  return (type, detail, { cancelable = false } = {}) => {
-    const callbacks = component.$$.callbacks[type];
-    if (callbacks) {
-      const event = custom_event(
-        /** @type {string} */
-        type,
-        detail,
-        { cancelable }
-      );
-      callbacks.slice().forEach((fn) => {
-        fn.call(component, event);
-      });
-      return !event.defaultPrevented;
-    }
-    return true;
-  };
 }
 function setContext(key, context) {
   get_current_component().$$.context.set(key, context);
@@ -150,18 +125,16 @@ function add_classes(classes) {
   return classes ? ` class="${classes}"` : "";
 }
 export {
-  each as a,
-  add_attribute as b,
+  setContext as a,
+  subscribe as b,
   create_ssr_component as c,
-  createEventDispatcher as d,
-  escape as e,
-  setContext as f,
-  getContext as g,
-  add_classes as h,
-  noop as i,
-  safe_not_equal as j,
+  add_classes as d,
+  add_attribute as e,
+  each as f,
+  escape as g,
+  getContext as h,
   missing_component as m,
-  null_to_empty as n,
-  subscribe as s,
+  noop as n,
+  safe_not_equal as s,
   validate_component as v
 };
