@@ -9,6 +9,7 @@
   import LoadingStatus from "$lib/components/LoadingStatus.svelte"
   import { getTodaysDate, checkFileSize } from "$lib/utils"
   import { goto } from "$app/navigation"
+  import AgreementModalcontent from "$lib/components/AgreementModalcontent.svelte.svelte"
 
   // gen pdf
   let signaturePad
@@ -25,33 +26,50 @@
   let message = ""
   let modalPreventEsc = true
 
+  // agreement
+  let acceptedAgreement = false
+
   // form fields
   const fields = [
-    { name: "homeowner-name", label: "Homeowner's Name", value: "Ricky Rivas", type: "text" },
+    { name: "homeowner-name", label: "Homeowner's Name", value: "", type: "text" },
     {
       name: "address",
       label: "Address of Property Affected by Proposed Change",
-      value: "5924 e king pl",
+      value: "",
       type: "text",
     },
-    { name: "number", label: "Telephone Number", value: "9183127266", type: "number" },
-    { name: "email", label: "Email Address", value: "me@gmail.com", type: "email" },
+    { name: "number", label: "Telephone Number", value: "", type: "number" },
+    { name: "email", label: "Email Address", value: "", type: "email" },
     {
       name: "categories",
       label: "Indicate the type of improvement(s) proposed",
-      value: "fencing, siding",
+      value: "",
       type: "text",
     },
     {
       name: "description",
       label: "Briefly describe the proposed modification(s)/alteration(s)",
-      value: "I want to build a mansion in our neighborhood",
+      value: "",
       type: "textarea",
     },
-    { name: "performed-by", label: "Work will be performed by", value: "contractor", type: "text" },
-    { name: "start", label: "Desired Start Date", value: "10-24-24", type: "text" },
-    { name: "end", label: "Anticipated Completion Date", value: "10-30-24", type: "text" },
+    { name: "performed-by", label: "Work will be performed by", value: "", type: "text" },
+    { name: "start", label: "Desired Start Date", value: "", type: "text" },
+    { name: "end", label: "Anticipated Completion Date", value: "", type: "text" },
   ]
+
+  function enterDevFields() {
+    fields[0].value = "Richie Valenz"
+    fields[1].value = "1600 Pennsylvania Avenue NW, Washington, DC 20500"
+    fields[0].value = "918 123 7266"
+    fields[0].value = "me@gmail.com"
+    fields[0].value = "fencing, siding"
+    fields[0].value = "I want to build a mansion in our neighborhood"
+    fields[0].value = "contractor"
+    fields[0].value = "10-24-24"
+    fields[0].value = "10-30-24"
+  }
+
+  let date = ""
 
   let fileUploadInputs = [
     {
@@ -91,6 +109,17 @@
     showModal = true
     loading = true
 
+    // check if agreed to terms
+    if (!acceptedAgreement) {
+      message = "Please agree to the ARC Terms"
+      showModal = true
+      success = false
+      loading = false
+      error = true
+      modalPreventEsc = false
+      return
+    }
+
     // check if user signed
     const signatureImage = signaturePad.getSignatureImage()
     if (!signatureImage) {
@@ -113,7 +142,7 @@
         // signature (as an image)
         signature: signatureImage,
         // todays date: TODO: add a button where the user fills in their own date
-        date: getTodaysDate(),
+        date: date,
       }),
     })
 
@@ -269,11 +298,28 @@
           {/each}
         </div>
         <div class="form-control">
+          <AgreementModalcontent bind:acceptedAgreement />
+        </div>
+        <div class="form-control">
           <label>
             Please draw your signature:
             <input type="hidden" name="signature-verify" value="" required />
           </label>
           <SignaturePad bind:this={signaturePad} />
+        </div>
+        <div class="form-control">
+          <label for="">
+            Today's Date:
+            <input
+              type="text"
+              name=""
+              id=""
+              bind:value={date}
+              required
+              on:focus={() => {
+                date = getTodaysDate()
+              }} />
+          </label>
         </div>
         <button class="btn newbtn">
           <span class="text">Submit ARC Form</span> <span class="screenreader"></span>

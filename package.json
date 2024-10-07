@@ -25,6 +25,7 @@
 	"type": "module",
 	"dependencies": {
 		"pdfkit": "^0.15.0",
-		"signature_pad": "^5.0.3"
+		"signature_pad": "^5.0.3",
+		"swiper": "^11.1.14"
 	}
 }
