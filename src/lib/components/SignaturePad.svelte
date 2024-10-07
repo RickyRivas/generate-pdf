@@ -22,5 +22,13 @@
   }
 </script>
 
-<canvas bind:this={canvas}></canvas>
-<button on:click={clear}>clear</button>
+<div>
+  <canvas bind:this={canvas}></canvas>
+  <button on:click={clear}>clear signature</button>
+</div>
+
+<style>
+  div {
+    margin-bottom: 1em;
+  }
+</style>

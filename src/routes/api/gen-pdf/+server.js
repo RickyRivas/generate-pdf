@@ -104,7 +104,7 @@ export async function POST({ request, fetch }) {
     doc.fontSize(12); // Smaller font for the long text
 
     // Note before signature
-    addText(`I understand that the Architectural Control Committee has up to thirty (30) days to review my request for alteration and or modification to my property. I further understand that any work performed or cost(s) incurred by me prior to receiving written approval from the Board will be done so at my own risk as disapproval of my request may result in my requirement to restore my property to its original condition. I hereby indemnify the Magnolia Gardens Homeowner's Association, its members, Board of Directors, employees and their heirs and successors from any and all costs past, present or future associated with this request and/or the modifications indicated therein. I certify by my signature that I have read and familiarized myself with the Magnolia Gardens Declaration of Covenants, Conditions and Restrictions and will insure that any and all modifications to my property will not violate those Covenants without express written waiver from the Board.`,
+    addText(`I understand that the Architectural Control Committee has up to thirty (30) days to review my request for alteration and or modification to my property. I further understand that any work performed or cost(s) incurred by me prior to receiving written approval from the Board will be done so at my own risk as disapproval of my request may result in my requirement to restore my property to its original condition. I hereby indemnify the Oxford Park Homeowner's Association, its members, Board of Directors, employees and their heirs and successors from any and all costs past, present or future associated with this request and/or the modifications indicated therein. I certify by my signature that I have read and familiarized myself with the Magnolia Gardens Declaration of Covenants, Conditions and Restrictions and will insure that any and all modifications to my property will not violate those Covenants without express written waiver from the Board.`,
         50, yPosition, {
         width: pageWidth,
         align: 'justify',
@@ -178,6 +178,13 @@ export async function POST({ request, fetch }) {
     const stream = new Readable();
     stream.push(pdfBuffer);
     stream.push(null);
+
+    // artificial delay
+    function artificialDelay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    await artificialDelay(2000)
 
     return new Response(stream, {
         headers: {
