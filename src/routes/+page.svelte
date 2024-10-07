@@ -243,7 +243,11 @@
         name="arc"
         action="/"
         method="post"
-        enctype="multipart/form-data">
+        enctype="multipart/form-data"
+        use:enhance={({ cancel }) => {
+          cancel()
+        }}>
+        <input type="hidden" name="form-name" value="arc" />
         <div class="form-controls-uploads">
           {#each fileUploadInputs as input}
             <!-- 1st file upload -->
