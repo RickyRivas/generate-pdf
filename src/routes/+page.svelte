@@ -23,15 +23,26 @@
 
   const fields = [
     { name: "homeowner-name", label: "Homeowner's Name", value: "Ricky Rivas", type: "text" },
-    { name: "address", label: "Address", value: "5924 E. King PL", type: "text" },
+    {
+      name: "address",
+      label: "Address of Property Affected by Proposed Change",
+      value: "5924 E. King PL",
+      type: "text",
+    },
     { name: "number", label: "Telephone Number", value: "9183127266", type: "number" },
-    { name: "email", label: "Email", value: "info@rivaswebdesigns", type: "email" },
-    { name: "categories", label: "Project Categories", value: "Fence, Siding", type: "text" },
+    { name: "email", label: "Email Address", value: "info@rivaswebdesigns", type: "email" },
+    {
+      name: "categories",
+      label: "Indicate the type of improvement(s) proposed",
+      value: "Fence, Siding",
+      type: "text",
+    },
     {
       name: "description",
-      label: "Briefly describe the proposed modification(s)",
-      value: "I want to finally update my home",
-      type: "text",
+      label: "Briefly describe the proposed modification(s)/alteration(s)",
+      value:
+        "I want to finally update my home, I want to finally update my home, I want to finally update my home, I want to finally update my home, I want to finally update my home, I want to finally update my home, I want to finally update my home",
+      type: "textarea",
     },
     { name: "performed-by", label: "Work will be performed by", value: "Me", type: "text" },
     { name: "start", label: "Desired Start Date", value: "10-24-2024", type: "text" },
@@ -78,7 +89,7 @@
             fields: fields,
             signature: signatureImage,
             // TODO, auto gen date
-            date: "today",
+            date: "10-26-2024",
           }),
         })
 
