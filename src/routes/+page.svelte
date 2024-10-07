@@ -9,12 +9,6 @@
   import SignaturePad from "$lib/components/SignaturePad.svelte"
 
   // gen pdf
-  let formData = {
-    name: "Ricky",
-    email: "info@rivaswebdesigns.com",
-    message: "lets make some money!",
-  }
-
   let signaturePad
   let successfulCall = false
   let downloadButton
@@ -22,32 +16,33 @@
   let form
 
   const fields = [
-    { name: "homeowner-name", label: "Homeowner's Name", value: "Ricky Rivas", type: "text" },
+    { name: "homeowner-name", label: "Homeowner's Name", value: "", type: "text" },
     {
       name: "address",
       label: "Address of Property Affected by Proposed Change",
-      value: "5924 E. King PL",
+      value: "",
       type: "text",
     },
-    { name: "number", label: "Telephone Number", value: "9183127266", type: "number" },
-    { name: "email", label: "Email Address", value: "info@rivaswebdesigns", type: "email" },
+    { name: "number", label: "Telephone Number", value: "", type: "number" },
+    { name: "email", label: "Email Address", value: "", type: "email" },
     {
       name: "categories",
       label: "Indicate the type of improvement(s) proposed",
-      value: "Fence, Siding",
+      value: "",
       type: "text",
     },
     {
       name: "description",
       label: "Briefly describe the proposed modification(s)/alteration(s)",
-      value:
-        "I want to finally update my home, I want to finally update my home, I want to finally update my home, I want to finally update my home, I want to finally update my home, I want to finally update my home, I want to finally update my home",
+      value: "",
       type: "textarea",
     },
-    { name: "performed-by", label: "Work will be performed by", value: "Me", type: "text" },
-    { name: "start", label: "Desired Start Date", value: "10-24-2024", type: "text" },
-    { name: "end", label: "Anticipated Completion Date", value: "10-26-2024", type: "text" },
+    { name: "performed-by", label: "Work will be performed by", value: "", type: "text" },
+    { name: "start", label: "Desired Start Date", value: "", type: "text" },
+    { name: "end", label: "Anticipated Completion Date", value: "", type: "text" },
   ]
+
+  $: console.log(fields)
 </script>
 
 <SEO
@@ -112,27 +107,8 @@
           label={field.label}
           type={field.type}
           required={true}
-          value={field.value} />
+          bind:value={field.value} />
       {/each}
-
-      <!-- <div class="form-control">
-        <label for="genpdf">
-          Name
-          <input type="text" name="name" id="" bind:value={formData.name} />
-        </label>
-      </div>
-      <div class="form-control">
-        <label for="genpdf">
-          Email
-          <input type="text" name="name" id="" bind:value={formData.email} />
-        </label>
-      </div>
-      <div class="form-control">
-        <label for="genpdf">
-          Message
-          <input type="text" name="name" id="" bind:value={formData.message} />
-        </label>
-      </div> -->
       <AnchorButton text="submit" formButton={true} />
     </form>
     <SignaturePad bind:this={signaturePad} />
