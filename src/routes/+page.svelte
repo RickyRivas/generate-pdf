@@ -8,10 +8,11 @@
   import Modal from "$lib/components/Modal.svelte"
   import LoadingStatus from "$lib/components/LoadingStatus.svelte"
   import { getTodaysDate, checkFileSize } from "$lib/utils"
+  import { goto } from "$app/navigation"
 
   // gen pdf
   let signaturePad
-  let generatedLink
+  let generatedLink = "xxx"
 
   // netlify form
   let netlifyForm
@@ -22,7 +23,7 @@
   let success = false
   let error = false
   let message = ""
-  let disableModalClose = true
+  let modalPreventEsc = true
 
   // form fields
   const fields = [
@@ -74,13 +75,15 @@
   ]
 
   function clearModal() {
-    if (success) clearFields()
+    if (success) {
+      goto("/")
+    }
     message = ""
     showModal = false
     success = false
     loading = false
     error = false
-    disableModalClose = false
+    modalPreventEsc = true
   }
 
   async function genPdf() {
@@ -91,11 +94,12 @@
     // check if user signed
     const signatureImage = signaturePad.getSignatureImage()
     if (!signatureImage) {
-      error = true
+      message = "Please sign"
+      showModal = true
       success = false
-      message = "please enter your signature"
       loading = false
-      disableModalClose = false
+      error = true
+      modalPreventEsc = false
       return
     }
 
@@ -144,25 +148,26 @@
         loading = false
         success = true
         error = false
+        modalPreventEsc = false
       } else {
         message = "Something went wrong. Please try again"
         loading = false
         success = false
         error = true
-        disableModalClose = true
+        modalPreventEsc = false
       }
     } else {
       message = "Please try again"
       success = false
       error = true
-      disableModalClose = false
+      modalPreventEsc = false
     }
   }
 </script>
 
 {#if showModal}
   <Modal
-    disable={disableModalClose}
+    disable={modalPreventEsc}
     on:escape={() => {
       clearModal()
     }}>
@@ -174,7 +179,23 @@
 
       {#if success}
         <p>{message}</p>
-        <a href={generatedLink} class="downloadbtn btn" target="_blank">download</a>
+        <a href={generatedLink} class="downloadbtn btn" target="_blank">
+          <span class="text">Download PDF</span> <span class="screenreader"></span>
+          <span class="arrow">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 12 12"
+              aria-hidden="true"
+              role="img"
+              ><path
+                fill="currentcolor"
+                d="M11.92 5.62a1 1 0 0 0-.21-.33l-5-5a1.004 1.004 0 0 0-1.42 1.42L8.59 5H1a1 1 0 1 0 0 2h7.59l-3.3 3.29a.999.999 0 0 0 0 1.42 1 1 0 0 0 1.42 0l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"
+              ></path>
+            </svg>
+          </span>
+        </a>
       {:else if error}
         <p>{message}</p>
       {/if}
@@ -187,14 +208,6 @@
     <div class="form-container">
       <h2>ARC Form</h2>
       <p>please fill out the below fields and draw your signature.</p>
-      {#each fields as field}
-        <InputField
-          name={field.name}
-          label={field.label}
-          type={field.type}
-          required={true}
-          bind:value={field.value} />
-      {/each}
       <form
         bind:this={netlifyForm}
         class="custom"
@@ -203,9 +216,20 @@
         method="post"
         enctype="multipart/form-data"
         use:enhance={({ cancel }) => {
+          genPdf()
           cancel()
         }}>
         <input type="hidden" name="form-name" value="arc" />
+        <!-- these form fields will be sent, but wont be included in the email -->
+        <!-- & will only be part of the generated PDF -->
+        {#each fields as field}
+          <InputField
+            name={field.name}
+            label={field.label}
+            type={field.type}
+            required={true}
+            bind:value={field.value} />
+        {/each}
         <div class="form-controls-uploads">
           {#each fileUploadInputs as input}
             <!-- 1st file upload -->
@@ -244,27 +268,31 @@
             </div>
           {/each}
         </div>
+        <div class="form-control">
+          <label>
+            Please draw your signature:
+            <input type="hidden" name="signature-verify" value="" required />
+          </label>
+          <SignaturePad bind:this={signaturePad} />
+        </div>
+        <button class="btn newbtn">
+          <span class="text">Submit ARC Form</span> <span class="screenreader"></span>
+          <span class="arrow">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 12 12"
+              aria-hidden="true"
+              role="img"
+              ><path
+                fill="currentcolor"
+                d="M11.92 5.62a1 1 0 0 0-.21-.33l-5-5a1.004 1.004 0 0 0-1.42 1.42L8.59 5H1a1 1 0 1 0 0 2h7.59l-3.3 3.29a.999.999 0 0 0 0 1.42 1 1 0 0 0 1.42 0l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"
+              ></path>
+            </svg>
+          </span>
+        </button>
       </form>
-
-      <p>Please draw your signature:</p>
-      <SignaturePad bind:this={signaturePad} />
-      <button class="btn newbtn" on:click={genPdf}
-        ><span class="text">submit</span> <span class="screenreader"></span>
-        <span class="arrow"
-          ><svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="12"
-            height="12"
-            viewBox="0 0 12 12"
-            aria-hidden="true"
-            role="img"
-            ><path
-              fill="currentcolor"
-              d="M11.92 5.62a1 1 0 0 0-.21-.33l-5-5a1.004 1.004 0 0 0-1.42 1.42L8.59 5H1a1 1 0 1 0 0 2h7.59l-3.3 3.29a.999.999 0 0 0 0 1.42 1 1 0 0 0 1.42 0l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"
-            ></path
-            ></svg
-          ></span
-        ></button>
     </div>
   </section>
 </main>

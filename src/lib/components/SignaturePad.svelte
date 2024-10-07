@@ -24,11 +24,26 @@
 
 <div>
   <canvas bind:this={canvas}></canvas>
-  <button on:click={clear}>clear signature</button>
+  <button on:click={clear} type="button">clear signature</button>
 </div>
 
-<style>
-  div {
+<style lang="less">
+  canvas {
     margin-bottom: 1em;
+  }
+  button {
+    display: block;
+    border: 0;
+    font-size: 14px;
+    background-color: var(--primary);
+    color: #fff;
+    line-height: 44px;
+    padding: 0 1em;
+    text-transform: capitalize;
+    transition: background-color 0.33s ease;
+
+    &:hover {
+      background-color: var(--secondary);
+    }
   }
 </style>
