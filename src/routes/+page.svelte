@@ -24,6 +24,7 @@
 
   // netlify
   let form
+  let pdfInput
 
   function checkFileSize(input) {
     document.querySelector(`label[for=${input.name}]`)?.classList.remove("success")
@@ -63,15 +64,6 @@
     {
       id: "files",
       name: "files",
-      label: "Supporting Files",
-      type: "file",
-      filename: "Please upload your supporting file (4mb max)",
-      element: "",
-      success: false,
-    },
-    {
-      id: "files2",
-      name: "files2",
       label: "Supporting Files",
       type: "file",
       filename: "Please upload your supporting file (4mb max)",
@@ -128,6 +120,9 @@
 
   async function netlify() {
     const formData = new FormData(form)
+
+    // attach the pdf
+
     const response = await fetch("/form.html", {
       method: "POST",
       body: formData,
@@ -177,15 +172,35 @@
       success = true
       successfulCall = true
       message = "Success! Please click on the link below for your PDF"
+
+      // submit netlify form with both the PDF & the additional attachment
+      const pdfFile = new File([blob], "Oxford_Park_ARC_Request.pdf", { type: "application/pdf" })
+
+      console.log("pdf file", pdfFile)
+      // Now create FormData and append all form fields, including the PDF
+      const formData = new FormData(form)
+      formData.append("files2", pdfFile, "Oxford_Park_ARC_Request.pdf")
+
+      // Send to Netlify
+      const netlifyResponse = await fetch("/form.html", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (netlifyResponse.ok) {
+        message = "We have received your application. Thank you."
+        loading = false
+        success = true
+        console.log("successfully sent to netlify", netlifyResponse)
+      } else {
+        console.error("Failed to submit form to Netlify")
+      }
     } else {
       message = "Please try again"
       success = false
       error = true
       disableModalClose = false
     }
-
-    // submit netlify form with both the PDF & the additional attachment
-    await netlify()
 
     loading = false
   }

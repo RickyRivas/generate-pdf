@@ -28,6 +28,10 @@ form:not(.custom) {
     position: relative;
     width: 100%;
 
+    &.hidden {
+        display: none;
+    }
+
     // flatpickr/daypicker.svelte bug fix
     &:not(.input) {
         margin-bottom: 1em;

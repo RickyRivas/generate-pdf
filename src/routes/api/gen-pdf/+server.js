@@ -189,7 +189,7 @@ export async function POST({ request, fetch }) {
     return new Response(stream, {
         headers: {
             'Content-Type': 'application/pdf',
-            'Content-Disposition': 'attachment; filename=Oxford_Park_ARC_Request.pdf'
+            'Content-Disposition': 'inline; filename=Oxford_Park_ARC_Request.pdf'
         }
     });
 
