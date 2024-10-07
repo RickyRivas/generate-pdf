@@ -5,6 +5,7 @@
 <body>
     <!-- remove enctype="multipart/form-data" if no file upload-->
     <form name="arc" action="/" data-netlify="true" enctype="multipart/form-data" hidden>
+        <input type="hidden" name="form-name" value="arc" />
         <input name="files" type="file" id="files" required="" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx">
     </form>
 </body>
