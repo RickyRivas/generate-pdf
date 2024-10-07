@@ -24,7 +24,6 @@
 
   // netlify
   let form
-  let pdfInput
 
   function checkFileSize(input) {
     document.querySelector(`label[for=${input.name}]`)?.classList.remove("success")
@@ -62,8 +61,8 @@
 
   let fileUploadInputs = [
     {
-      id: "files",
-      name: "files",
+      id: "supporting_file",
+      name: "supporting_file",
       label: "Supporting Files",
       type: "file",
       filename: "Please upload your supporting file (4mb max)",
@@ -118,25 +117,6 @@
     { name: "end", label: "Anticipated Completion Date", value: "10-30-24", type: "text" },
   ]
 
-  async function netlify() {
-    const formData = new FormData(form)
-
-    // attach the pdf
-
-    const response = await fetch("/form.html", {
-      method: "POST",
-      body: formData,
-    })
-
-    if (response.ok) {
-      message = "We have received your application. Thank you."
-      loading = false
-      success = true
-
-      console.log("successfully sent to netlify", response)
-    }
-  }
-
   async function genPdf() {
     showModal = true
     loading = true
@@ -168,18 +148,13 @@
       generatedLink = url
       successfulCall = true
 
-      // modal
-      success = true
-      successfulCall = true
-      message = "Success! Please click on the link below for your PDF"
-
       // submit netlify form with both the PDF & the additional attachment
       const pdfFile = new File([blob], "Oxford_Park_ARC_Request.pdf", { type: "application/pdf" })
 
       console.log("pdf file", pdfFile)
       // Now create FormData and append all form fields, including the PDF
       const formData = new FormData(form)
-      formData.append("files2", pdfFile, "Oxford_Park_ARC_Request.pdf")
+      formData.append("Request_(PDF)", pdfFile, "Oxford_Park_ARC_Request.pdf")
 
       // Send to Netlify
       const netlifyResponse = await fetch("/form.html", {
@@ -191,6 +166,10 @@
         message = "We have received your application. Thank you."
         loading = false
         success = true
+        successfulCall = true
+
+        // modal
+        message = "Success! Please click on the link below for your PDF"
         console.log("successfully sent to netlify", netlifyResponse)
       } else {
         console.error("Failed to submit form to Netlify")
