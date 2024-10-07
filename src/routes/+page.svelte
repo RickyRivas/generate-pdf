@@ -1,95 +1,30 @@
 <script>
   // components
-  import SEO from "./../lib/components/SEO.svelte"
   import InputField from "$lib/components/InputField.svelte"
+
   // stores
-  import { business } from "$lib/config"
-  import AnchorButton from "$lib/components/AnchorButton.svelte"
   import { enhance } from "$app/forms"
   import SignaturePad from "$lib/components/SignaturePad.svelte"
   import Modal from "$lib/components/Modal.svelte"
   import LoadingStatus from "$lib/components/LoadingStatus.svelte"
+  import { getTodaysDate, checkFileSize } from "$lib/utils"
 
   // gen pdf
   let signaturePad
-  let successfulCall = false
-  let downloadButton
-  let loading = false
   let generatedLink
+
+  // netlify form
+  let netlifyForm
+
+  // modal / loading states
+  let loading = false
   let showModal = false
   let success = false
   let error = false
   let message = ""
   let disableModalClose = true
 
-  // netlify
-  let form
-
-  function checkFileSize(input) {
-    document.querySelector(`label[for=${input.name}]`)?.classList.remove("success")
-    document.querySelector(`label[for=${input.name}]`)?.classList.remove("error")
-    const maxSize = 4 * 1024 * 1024 // 8MB in bytes
-    const files = input.element.files
-    let totalSize = 0
-
-    for (let i = 0; i < files.length; i++) {
-      totalSize += files[i].size
-    }
-
-    if (totalSize > maxSize) {
-      document.querySelector(`label[for=${input.name}]`).classList.add("error")
-      document.querySelector(`label[for=${input.name}] .custom-file-upload`).textContent =
-        "Maximum file size limit of 4mb reached. Try again."
-      return
-    }
-
-    let combinedFileNames = ""
-
-    for (let i = 0; i < files.length; i++) {
-      totalSize += files[i].size
-      combinedFileNames += files[i].name
-      if (i < files.length - 1) {
-        combinedFileNames += ", "
-      }
-    }
-
-    // // manually update file name
-    document.querySelector(`label[for=${input.name}]`)?.classList.add("success")
-    document.querySelector(`label[for=${input.name}] .custom-file-upload`).textContent =
-      combinedFileNames
-  }
-
-  let fileUploadInputs = [
-    {
-      id: "supporting_file",
-      name: "supporting_file",
-      label: "Supporting Files",
-      type: "file",
-      filename: "Please upload your supporting file (4mb max)",
-      element: "",
-      success: false,
-    },
-  ]
-
-  function clearModal() {
-    if (success) clearFields()
-
-    message = ""
-    showModal = false
-    success = false
-    loading = false
-    error = false
-  }
-
-  function getTodaysDate() {
-    const today = new Date()
-    const month = String(today.getMonth() + 1).padStart(2, "0")
-    const day = String(today.getDate()).padStart(2, "0")
-    const year = today.getFullYear()
-
-    return `${month}-${day}-${year}`
-  }
-
+  // form fields
   const fields = [
     { name: "homeowner-name", label: "Homeowner's Name", value: "Ricky Rivas", type: "text" },
     {
@@ -117,62 +52,104 @@
     { name: "end", label: "Anticipated Completion Date", value: "10-30-24", type: "text" },
   ]
 
+  let fileUploadInputs = [
+    {
+      id: "supporting_file",
+      name: "supporting_file",
+      label: "Supporting File",
+      type: "file",
+      filename: "Please upload your supporting file (4mb max)",
+      element: "",
+      success: false,
+    },
+    {
+      id: "supporting_file_two",
+      name: "supporting_file_two",
+      label: "Supporting File",
+      type: "file",
+      filename: "Please upload your supporting file (4mb max)",
+      element: "",
+      success: false,
+    },
+  ]
+
+  function clearModal() {
+    if (success) clearFields()
+    message = ""
+    showModal = false
+    success = false
+    loading = false
+    error = false
+    disableModalClose = false
+  }
+
   async function genPdf() {
+    // loading states
     showModal = true
     loading = true
 
+    // check if user signed
     const signatureImage = signaturePad.getSignatureImage()
     if (!signatureImage) {
-      console.log("no sig :(")
-      cancel()
+      error = true
+      success = false
+      message = "please enter your signature"
       loading = false
+      disableModalClose = false
       return
     }
 
+    // generate & return pdf
     const response = await fetch("/api/gen-pdf", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        // fields
         fields: fields,
+        // signature (as an image)
         signature: signatureImage,
+        // todays date: TODO: add a button where the user fills in their own date
         date: getTodaysDate(),
       }),
     })
 
-    // will return a blob
+    // with the newly generated PDF, send that pdf and the other attach. to netlify via static form
+    sendToNetlify(response)
+  }
 
+  async function sendToNetlify(response) {
     if (response.ok) {
-      console.log("res", response)
       const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
-      generatedLink = url
-      successfulCall = true
+      generatedLink = window.URL.createObjectURL(blob)
 
       // submit netlify form with both the PDF & the additional attachment
-      const pdfFile = new File([blob], "Oxford_Park_ARC_Request.pdf", { type: "application/pdf" })
+      const nameOfGeneratedPdfFile = "Oxford_Park_ARC_Request.pdf"
+      const generatedPdfFile = new File([blob], nameOfGeneratedPdfFile, { type: "application/pdf" })
 
-      console.log("pdf file", pdfFile)
-      // Now create FormData and append all form fields, including the PDF
-      const formData = new FormData(form)
-      formData.append("Request_(PDF)", pdfFile, "Oxford_Park_ARC_Request.pdf")
+      // add the PDF file to the formdate before sending
+      const netlifyFormData = new FormData(netlifyForm)
+      netlifyFormData.append("Request_(PDF)", generatedPdfFile, nameOfGeneratedPdfFile)
 
       // Send to Netlify
       const netlifyResponse = await fetch("/form.html", {
         method: "POST",
-        body: formData,
+        body: netlifyFormData,
       })
 
+      // checking form submission status
       if (netlifyResponse.ok) {
-        message = "We have received your application. Thank you."
+        // modal
+        message =
+          "We have received your application. Please click on the link below for your PDF. Thank you."
         loading = false
         success = true
-        successfulCall = true
-
-        // modal
-        message = "Success! Please click on the link below for your PDF"
-        console.log("successfully sent to netlify", netlifyResponse)
+        error = false
       } else {
-        console.error("Failed to submit form to Netlify")
+        message = "Something went wrong. Please try again"
+        loading = false
+        success = false
+        error = true
+        disableModalClose = true
       }
     } else {
       message = "Please try again"
@@ -180,27 +157,8 @@
       error = true
       disableModalClose = false
     }
-
-    loading = false
   }
-
-  // $: console.log(fields)
-  // $: console.log("generatedLink", generatedLink)
 </script>
-
-<SEO
-  title="{business.name} | {business.industry} | {business.cityAndState}"
-  description={business.homepage.metaDescription}
-  canonical={business.canonical}
-  siteName={business.name}
-  imageURL={business.ogImage}
-  index={true}
-  twitter={true}
-  openGraph={true}
-  schemaOrg={false}
-  logo=""
-  author=""
-  name="" />
 
 {#if showModal}
   <Modal
@@ -213,13 +171,11 @@
       {#if loading}
         <p>Generating your PDF...</p>
       {/if}
+
       {#if success}
-        <!-- successfully added to db -->
         <p>{message}</p>
-        <a href={generatedLink} class="downloadbtn btn" target="_blank" bind:this={downloadButton}
-          >download</a>
+        <a href={generatedLink} class="downloadbtn btn" target="_blank">download</a>
       {:else if error}
-        <!-- failed to be added to db -->
         <p>{message}</p>
       {/if}
     </div>
@@ -240,7 +196,7 @@
           bind:value={field.value} />
       {/each}
       <form
-        bind:this={form}
+        bind:this={netlifyForm}
         class="custom"
         name="arc"
         action="/"

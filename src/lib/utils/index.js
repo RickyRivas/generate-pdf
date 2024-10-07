@@ -75,19 +75,42 @@ export const fetchNewsMarkdownPosts = async (limit) => {
     return posts.sort((a, b) => Date.parse(b.postData.date) - Date.parse(a.postData.date))
 };
 
+export function getTodaysDate() {
+    const today = new Date()
+    const month = String(today.getMonth() + 1).padStart(2, "0")
+    const day = String(today.getDate()).padStart(2, "0")
+    const year = today.getFullYear()
 
-export function clearStepThreeErrors() {
-    for (const input of document.querySelectorAll(`.step-three input`)) {
-        input.classList.remove("error")
-        input.dataset.errorMessage = ""
-    }
+    return `${ month }-${ day }-${ year }`
 }
 
-export function addStepThreeErrors(errors) {
-    for (const { message, selector } of errors) {
-        const selectedInput = document.querySelector(`.step-three input[name="${ selector }"]`)
-        selectedInput?.classList.add("error")
-        selectedInput.dataset.errorMessage = message
+// verify sizes of files on upload
+export function checkFileSize(input) {
+    const MAX_SIZE = 4 * 1024 * 1024 // 4MB in bytes
+    const label = document.querySelector(`label[for=${ input.name }]`)
+    const customFileUpload = label?.querySelector(".custom-file-upload")
+
+    // reset classes
+    label?.classList.remove("success", "error")
+
+    const files = Array.from(input.element.files)
+    const totalSize = files.reduce((sum, file) => sum + file.size, 0)
+
+    if (totalSize > MAX_SIZE) {
+        label?.classList.add("error")
+
+        if (customFileUpload) {
+            customFileUpload.textContent = "Maximum file size limit of 4MB reached. Try again."
+        }
+
+        return
+    }
+
+    const combinedFileNames = files.map((file) => file.name).join(", ")
+
+    label?.classList.add("success")
+    if (customFileUpload) {
+        customFileUpload.textContent = combinedFileNames || "No files selected."
     }
 }
 
