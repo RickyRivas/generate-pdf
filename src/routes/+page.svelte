@@ -69,6 +69,15 @@
       element: "",
       success: false,
     },
+    {
+      id: "files2",
+      name: "files2",
+      label: "Supporting Files",
+      type: "file",
+      filename: "Please upload your supporting file (4mb max)",
+      element: "",
+      success: false,
+    },
   ]
 
   function clearModal() {
@@ -151,7 +160,6 @@
       body: JSON.stringify({
         fields: fields,
         signature: signatureImage,
-        // TODO, auto gen date
         date: getTodaysDate(),
       }),
     })
