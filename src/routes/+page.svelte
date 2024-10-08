@@ -335,7 +335,6 @@
     <div class="form-container">
       <h2>ARC Form (Demo)</h2>
       <p>please fill out the below fields and draw your signature.</p>
-      <span>{fieldGroups[1].fields[0].value}</span>
       <form
         bind:this={netlifyForm}
         name="arc"
