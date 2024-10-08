@@ -288,7 +288,7 @@
   }
 
   onMount(() => {
-    enterDevFields()
+    // enterDevFields()
   })
 </script>
 
