@@ -10,6 +10,7 @@
   import { getTodaysDate, checkFileSize } from "$lib/utils"
   import { goto } from "$app/navigation"
   import AgreementModalcontent from "$lib/components/AgreementModalcontent.svelte.svelte"
+  import { onMount } from "svelte"
 
   // gen pdf
   let signaturePad
@@ -42,9 +43,72 @@
     { name: "email", label: "Email Address", value: "", type: "email" },
     {
       name: "categories",
-      label: "Indicate the type of improvement(s) proposed",
+      label: "Project Categories",
       value: "",
-      type: "text",
+      type: "checkboxes",
+      element: "",
+      projectCategories: [
+        {
+          id: 1,
+          name: "Paint",
+        },
+        {
+          id: 2,
+          name: "Roof",
+        },
+        {
+          id: 3,
+          name: "Landscaping",
+        },
+        {
+          id: 4,
+          name: "Fence",
+        },
+        {
+          id: 5,
+          name: "Driveway",
+        },
+        {
+          id: 6,
+          name: "Deck or Patio",
+        },
+        {
+          id: 7,
+          name: "Windows and Doors",
+        },
+        {
+          id: 8,
+          name: "Lighting",
+        },
+        {
+          id: 9,
+          name: "Solar Panels",
+        },
+        {
+          id: 10,
+          name: "Swimming Pool",
+        },
+        {
+          id: 11,
+          name: "Shed or Outbuilding",
+        },
+        {
+          id: 12,
+          name: "Garage Door",
+        },
+        {
+          id: 13,
+          name: "Porch Addition",
+        },
+        {
+          id: 14,
+          name: "Siding",
+        },
+        {
+          id: 15,
+          name: "Walkways and Pathways",
+        },
+      ],
     },
     {
       name: "description",
@@ -57,16 +121,19 @@
     { name: "end", label: "Anticipated Completion Date", value: "", type: "text" },
   ]
 
+  //
+  $: fields[4].value = fields[4].value.toString().replace(/,/g, ", ")
+
   function enterDevFields() {
     fields[0].value = "Richie Valenz"
     fields[1].value = "1600 Pennsylvania Avenue NW, Washington, DC 20500"
-    fields[0].value = "918 123 7266"
-    fields[0].value = "me@gmail.com"
-    fields[0].value = "fencing, siding"
-    fields[0].value = "I want to build a mansion in our neighborhood"
-    fields[0].value = "contractor"
-    fields[0].value = "10-24-24"
-    fields[0].value = "10-30-24"
+    fields[2].value = "9181237266"
+    fields[3].value = "me@gmail.com"
+    fields[4].value = ""
+    fields[5].value = "I want to build a mansion in our neighborhood"
+    fields[6].value = "contractor"
+    fields[7].value = "10-24-24"
+    fields[8].value = "10-30-24"
   }
 
   let date = ""
@@ -192,6 +259,10 @@
       modalPreventEsc = false
     }
   }
+
+  onMount(() => {
+    enterDevFields()
+  })
 </script>
 
 {#if showModal}
@@ -235,7 +306,7 @@
 <main>
   <section id="hero">
     <div class="form-container">
-      <h2>ARC Form</h2>
+      <h2>ARC Form (Demo)</h2>
       <p>please fill out the below fields and draw your signature.</p>
       <form
         bind:this={netlifyForm}
@@ -252,12 +323,41 @@
         <!-- these form fields will be sent, but wont be included in the email -->
         <!-- & will only be part of the generated PDF -->
         {#each fields as field}
-          <InputField
-            name={field.name}
-            label={field.label}
-            type={field.type}
-            required={true}
-            bind:value={field.value} />
+          <!-- if checkboxes field -->
+          {#if field.type === "checkboxes"}
+            <label for="project categories">
+              Project categories
+              <input
+                bind:this={field.element}
+                class="custom-hidden-form-input"
+                type="text"
+                name="project categories"
+                data-value={field.value ? field.value : "Other"}
+                required
+                value={field.value ? field.value : "Other"} />
+            </label>
+            <div class="checkbox-group">
+              {#each field.projectCategories as option}
+                <label for={`option-${option.id}`}>
+                  <input
+                    type="checkbox"
+                    id={`option-${option.id}`}
+                    name="options"
+                    value={option.name}
+                    bind:group={field.value} />
+                  {option.name}
+                </label>
+              {/each}
+            </div>
+          {:else}
+            <!-- all other inputs -->
+            <InputField
+              name={field.name}
+              label={field.label}
+              type={field.type}
+              required={true}
+              bind:value={field.value} />
+          {/if}
         {/each}
         <div class="form-controls-uploads">
           {#each fileUploadInputs as input}
@@ -316,7 +416,8 @@
               id=""
               bind:value={date}
               required
-              on:focus={() => {
+              placeholder="Click to get today's date"
+              on:click={() => {
                 date = getTodaysDate()
               }} />
           </label>
