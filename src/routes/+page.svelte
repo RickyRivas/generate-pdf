@@ -141,7 +141,8 @@
     fieldGroups[0].fields[2].value = "9181237266"
     fieldGroups[0].fields[3].value = "me@gmail.com"
     fieldGroups[1].fields[0].value = ""
-    fieldGroups[1].fields[1].value = "I want to build a mansion in our neighborhood"
+    fieldGroups[1].fields[1].value =
+      "I plan to install a new wooden fence around the backyard perimeter. The fence will be 6 feet tall and approximately 120 linear feet in total length. It will be constructed using pressure-treated pine boards with a natural finish."
     fieldGroups[1].fields[2].value = "contractor"
     fieldGroups[1].fields[3].value = "10-24-24"
     fieldGroups[1].fields[4].value = "10-30-24"
@@ -272,7 +273,7 @@
   }
 
   onMount(() => {
-    // enterDevFields()
+    enterDevFields()
   })
 </script>
 
