@@ -22,14 +22,21 @@
   }
 </script>
 
-<div>
+<div class="signature-container">
   <canvas bind:this={canvas}></canvas>
-  <button on:click={clear} type="button">clear signature</button>
+  <button on:click={clear} type="button">clear</button>
 </div>
 
 <style lang="less">
+  .signature-container {
+    display: inline-block;
+    vertical-align: top;
+    position: relative;
+  }
   canvas {
-    margin-bottom: 1em;
+    display: block;
+    border: 1px solid var(--primary);
+    box-shadow: var(--box-shadow);
   }
   button {
     display: block;
@@ -41,7 +48,9 @@
     padding: 0 1em;
     text-transform: capitalize;
     transition: background-color 0.33s ease;
-
+    position: absolute;
+    top: 0;
+    right: 0;
     &:hover {
       background-color: var(--secondary);
     }

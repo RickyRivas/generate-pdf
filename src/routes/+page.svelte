@@ -31,109 +31,120 @@
   let acceptedAgreement = false
 
   // form fields
-  const fields = [
-    { name: "homeowner-name", label: "Homeowner's Name", value: "", type: "text" },
+  const fieldGroups = [
     {
-      name: "address",
-      label: "Address of Property Affected by Proposed Change",
-      value: "",
-      type: "text",
-    },
-    { name: "number", label: "Telephone Number", value: "", type: "number" },
-    { name: "email", label: "Email Address", value: "", type: "email" },
-    {
-      name: "categories",
-      label: "Project Categories",
-      value: "",
-      type: "checkboxes",
-      element: "",
-      projectCategories: [
+      groupName: "Contact Information",
+      fields: [
+        { name: "homeowner-name", label: "Homeowner's Name", value: "", type: "text" },
         {
-          id: 1,
-          name: "Paint",
+          name: "address",
+          label: "Address of Property Affected by Proposed Change",
+          value: "",
+          type: "text",
         },
-        {
-          id: 2,
-          name: "Roof",
-        },
-        {
-          id: 3,
-          name: "Landscaping",
-        },
-        {
-          id: 4,
-          name: "Fence",
-        },
-        {
-          id: 5,
-          name: "Driveway",
-        },
-        {
-          id: 6,
-          name: "Deck or Patio",
-        },
-        {
-          id: 7,
-          name: "Windows and Doors",
-        },
-        {
-          id: 8,
-          name: "Lighting",
-        },
-        {
-          id: 9,
-          name: "Solar Panels",
-        },
-        {
-          id: 10,
-          name: "Swimming Pool",
-        },
-        {
-          id: 11,
-          name: "Shed or Outbuilding",
-        },
-        {
-          id: 12,
-          name: "Garage Door",
-        },
-        {
-          id: 13,
-          name: "Porch Addition",
-        },
-        {
-          id: 14,
-          name: "Siding",
-        },
-        {
-          id: 15,
-          name: "Walkways and Pathways",
-        },
+        { name: "number", label: "Telephone Number", value: "", type: "number" },
+        { name: "email", label: "Email Address", value: "", type: "email" },
       ],
     },
     {
-      name: "description",
-      label: "Briefly describe the proposed modification(s)/alteration(s)",
-      value: "",
-      type: "textarea",
+      groupName: "Project Information",
+      fields: [
+        {
+          name: "categories",
+          label: "Project Categories",
+          value: "",
+          type: "checkboxes",
+          element: "",
+          projectCategories: [
+            {
+              id: 1,
+              name: "Paint",
+            },
+            {
+              id: 2,
+              name: "Roof",
+            },
+            {
+              id: 3,
+              name: "Landscaping",
+            },
+            {
+              id: 4,
+              name: "Fence",
+            },
+            {
+              id: 5,
+              name: "Driveway",
+            },
+            {
+              id: 6,
+              name: "Deck or Patio",
+            },
+            {
+              id: 7,
+              name: "Windows and Doors",
+            },
+            {
+              id: 8,
+              name: "Lighting",
+            },
+            {
+              id: 9,
+              name: "Solar Panels",
+            },
+            {
+              id: 10,
+              name: "Swimming Pool",
+            },
+            {
+              id: 11,
+              name: "Shed or Outbuilding",
+            },
+            {
+              id: 12,
+              name: "Garage Door",
+            },
+            {
+              id: 13,
+              name: "Porch Addition",
+            },
+            {
+              id: 14,
+              name: "Siding",
+            },
+            {
+              id: 15,
+              name: "Walkways and Pathways",
+            },
+          ],
+        },
+        {
+          name: "description",
+          label: "Briefly describe the proposed modification(s)/alteration(s)",
+          value: "",
+          type: "textarea",
+        },
+        { name: "performed-by", label: "Work will be performed by", value: "", type: "text" },
+        { name: "start", label: "Desired Start Date", value: "", type: "text" },
+        { name: "end", label: "Anticipated Completion Date", value: "", type: "text" },
+      ],
     },
-    { name: "performed-by", label: "Work will be performed by", value: "", type: "text" },
-    { name: "start", label: "Desired Start Date", value: "", type: "text" },
-    { name: "end", label: "Anticipated Completion Date", value: "", type: "text" },
   ]
 
   //
-  $: fields[4].value = fields[4].value.toString().replace(/,/g, ", ")
+  $: fieldGroups[1].fields[0].value = fieldGroups[1].fields[0].value.toString().replace(/,/g, ", ")
+  $: if (!fieldGroups[1].fields[0].value) fieldGroups[1].fields[0].value = "Other"
 
   function enterDevFields() {
-    fields[0].value = "Richie Valenz"
-    fields[1].value = "1600 Pennsylvania Avenue NW, Washington, DC 20500"
-    fields[2].value = "9181237266"
-    fields[3].value = "me@gmail.com"
-    fields[4].value = ""
-    fields[5].value = "I want to build a mansion in our neighborhood"
-    fields[6].value = "contractor"
-    fields[7].value = "10-24-24"
-    fields[8].value = "10-30-24"
+    fieldGroups[0].fields[0].value = "Richie Valenz"
+    fieldGroups[0].fields[1].value = "1600 Pennsylvania Avenue NW, Washington, DC 20500"
+    fieldGroups[0].fields[2].value = "9181237266"
+    fieldGroups[0].fields[3].value = "me@gmail.com"
+    fieldGroups[1].fields[0].value = ""
+    fieldGroups[1].fields[1].value = "I want to build a mansion in our neighborhood"
+    fieldGroups[1].fields[2].value = "contractor"
+    fieldGroups[1].fields[3].value = "10-24-24"
+    fieldGroups[1].fields[4].value = "10-30-24"
   }
 
   let date = ""
@@ -205,7 +216,7 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         // fields
-        fields: fields,
+        fieldGroups: fieldGroups,
         // signature (as an image)
         signature: signatureImage,
         // todays date: TODO: add a button where the user fills in their own date
@@ -274,7 +285,7 @@
     <div class="subscribe-page-modal">
       <LoadingStatus bind:loading bind:success bind:error />
       {#if loading}
-        <p>Generating your PDF...</p>
+        <p>Submitting your form and generating a PDF...</p>
       {/if}
 
       {#if success}
@@ -310,7 +321,6 @@
       <p>please fill out the below fields and draw your signature.</p>
       <form
         bind:this={netlifyForm}
-        class="custom"
         name="arc"
         action="/"
         method="post"
@@ -322,43 +332,49 @@
         <input type="hidden" name="form-name" value="arc" />
         <!-- these form fields will be sent, but wont be included in the email -->
         <!-- & will only be part of the generated PDF -->
-        {#each fields as field}
-          <!-- if checkboxes field -->
-          {#if field.type === "checkboxes"}
-            <label for="project categories">
-              Project categories
-              <input
-                bind:this={field.element}
-                class="custom-hidden-form-input"
-                type="text"
-                name="project categories"
-                data-value={field.value ? field.value : "Other"}
-                required
-                value={field.value ? field.value : "Other"} />
-            </label>
-            <div class="checkbox-group">
-              {#each field.projectCategories as option}
-                <label for={`option-${option.id}`}>
+        {#each fieldGroups as { fields, groupName }}
+          <h3>{groupName}</h3>
+          {#each fields as field}
+            <!-- if checkboxes field -->
+            {#if field.type === "checkboxes"}
+              <div class="form-control">
+                <label for="project categories">
+                  Project categories
                   <input
-                    type="checkbox"
-                    id={`option-${option.id}`}
-                    name="options"
-                    value={option.name}
-                    bind:group={field.value} />
-                  {option.name}
+                    bind:this={field.element}
+                    class="custom-hidden-form-input"
+                    type="text"
+                    name="project categories"
+                    data-value={field.value ? field.value : "Other"}
+                    required
+                    value={field.value ? field.value : "Other"} />
                 </label>
-              {/each}
-            </div>
-          {:else}
-            <!-- all other inputs -->
-            <InputField
-              name={field.name}
-              label={field.label}
-              type={field.type}
-              required={true}
-              bind:value={field.value} />
-          {/if}
+                <div class="checkbox-group">
+                  {#each field.projectCategories as option}
+                    <label for={`option-${option.id}`}>
+                      <input
+                        type="checkbox"
+                        id={`option-${option.id}`}
+                        name="options"
+                        value={option.name}
+                        bind:group={field.value} />
+                      {option.name}
+                    </label>
+                  {/each}
+                </div>
+              </div>
+            {:else}
+              <!-- all other inputs -->
+              <InputField
+                name={field.name}
+                label={field.label}
+                type={field.type}
+                required={true}
+                bind:value={field.value} />
+            {/if}
+          {/each}
         {/each}
+
         <div class="form-controls-uploads">
           {#each fileUploadInputs as input}
             <!-- 1st file upload -->
@@ -397,6 +413,8 @@
             </div>
           {/each}
         </div>
+
+        <h3>Agree, Sign, and Send for Consideration</h3>
         <div class="form-control">
           <AgreementModalcontent bind:acceptedAgreement />
         </div>
@@ -422,7 +440,7 @@
               }} />
           </label>
         </div>
-        <button class="btn newbtn">
+        <button id="arc-submit" class="btn newbtn">
           <span class="text">Submit ARC Form</span> <span class="screenreader"></span>
           <span class="arrow">
             <svg

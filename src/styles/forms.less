@@ -12,21 +12,12 @@ form:not(.custom) {
     padding: (48/20em) (32/20em);
 }
 
-.form-container {
-    display: block;
-    width: 100%;
-    border-radius: var(--border-radius);
-    background-color: var(--form-bg);
-    box-shadow: var(--box-shadow);
-    border: @border;
-    padding: (48/20em) (32/20em);
-}
-
 // form control default
 .form-control {
     display: block;
     position: relative;
     width: 100%;
+    text-align: left;
 
     &.hidden {
         display: none;
@@ -186,8 +177,7 @@ textarea {
     display: flex;
     align-items: flex-start;
     flex-wrap: wrap;
-    gap: 1em;
-    padding: 1em 0;
+    gap: .5em;
 
     label {
         font-size: 14px;

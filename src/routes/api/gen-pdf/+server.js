@@ -4,7 +4,7 @@ import { Readable } from 'stream';
 
 
 export async function POST({ request, fetch }) {
-    const { fields, signature, date } = await request.json();
+    const { fieldGroups, signature, date } = await request.json();
 
     // Create a PDF document
     const doc = new PDFDocument({ size: 'A4', margin: 50 });
@@ -54,47 +54,58 @@ export async function POST({ request, fetch }) {
     const pageWidth = 500; // Total available width
     const fieldSpacing = 15; // Spacing between fields
 
-    fields.forEach(field => {
-        // Add the label
-        addText(`${ field.label }:`, 50, yPosition);
+    fieldGroups.forEach(group => {
+        // Add group name
+        doc.fontSize(14).font('Footlight');
+        addText(group.groupName, 50, yPosition, { underline: true });
+        yPosition += lineHeight + fieldSpacing;
 
-        if (field.type === 'textarea') {
-            yPosition += lineHeight; // Move to the next line after the label
+        doc.fontSize(12).font('Footlight');
 
-            // Draw 5 lines
-            for (let i = 0; i < 5; i++) {
-                doc.moveTo(50, yPosition + (i * lineHeight) + doc.currentLineHeight())
-                    .lineTo(550, yPosition + (i * lineHeight) + doc.currentLineHeight())
+        group.fields.forEach(field => {
+            // Add the label
+            addText(`${ field.label }:`, 50, yPosition);
+
+            if (field.type === 'textarea') {
+                yPosition += lineHeight; // Move to the next line after the label
+
+                // Draw 5 lines
+                for (let i = 0; i < 5; i++) {
+                    doc.moveTo(50, yPosition + (i * lineHeight) + doc.currentLineHeight())
+                        .lineTo(550, yPosition + (i * lineHeight) + doc.currentLineHeight())
+                        .stroke();
+                }
+
+                // Add the text, wrapping over the lines
+                doc.text(field.value, 50, yPosition, {
+                    width: pageWidth,
+                    align: 'left',
+                    lineGap: lineHeight - doc.currentLineHeight()
+                });
+
+                yPosition += 5 * lineHeight; // Move past the textarea field
+            } else {
+                // For regular fields, draw a single underline
+                const labelWidth = doc.widthOfString(`${ field.label }:`) + 10;
+                const valueWidth = pageWidth - labelWidth;
+
+                doc.moveTo(50 + labelWidth, yPosition + doc.currentLineHeight())
+                    .lineTo(550, yPosition + doc.currentLineHeight())
                     .stroke();
+
+                // Add the value on top of the line
+                addText(field.value, 50 + labelWidth, yPosition, {
+                    width: valueWidth,
+                    align: 'left'
+                });
+
+                yPosition += lineHeight; // Move to the next field
             }
 
-            // Add the text, wrapping over the lines
-            doc.text(field.value, 50, yPosition, {
-                width: pageWidth,
-                align: 'left',
-                lineGap: lineHeight - doc.currentLineHeight()
-            });
+            yPosition += fieldSpacing; // Add spacing between fields
+        });
 
-            yPosition += 5 * lineHeight; // Move past the textarea field
-        } else {
-            // For regular fields, draw a single underline
-            const labelWidth = doc.widthOfString(`${ field.label }:`) + 10;
-            const valueWidth = pageWidth - labelWidth;
-
-            doc.moveTo(50 + labelWidth, yPosition + doc.currentLineHeight())
-                .lineTo(550, yPosition + doc.currentLineHeight())
-                .stroke();
-
-            // Add the value on top of the line
-            addText(field.value, 50 + labelWidth, yPosition, {
-                width: valueWidth,
-                align: 'left'
-            });
-
-            yPosition += lineHeight; // Move to the next field
-        }
-
-        yPosition += fieldSpacing; // Add spacing between fields
+        yPosition += fieldSpacing * 2; // Add extra spacing between groups
     });
 
     // Start a new page for the understanding statement
