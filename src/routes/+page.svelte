@@ -131,8 +131,23 @@
     },
   ]
 
+  function formatCategories(value) {
+    if (!value) return ""
+
+    // Split the string by comma, optionally followed by a space
+    const categories = value.split(/,\s*/)
+
+    // Trim each category and filter out any empty strings
+    const trimmedCategories = categories
+      .map((category) => category.trim())
+      .filter((category) => category.length > 0)
+
+    // Join the categories back together with ", "
+    return trimmedCategories.join(", ")
+  }
+
   //
-  $: fieldGroups[1].fields[0].value = fieldGroups[1].fields[0].value.toString().replace(/,/g, ", ")
+  $: fieldGroups[1].fields[0].value = formatCategories(fieldGroups[1].fields[0].value.toString())
   $: if (!fieldGroups[1].fields[0].value) fieldGroups[1].fields[0].value = "Other"
 
   function enterDevFields() {
@@ -273,7 +288,7 @@
   }
 
   onMount(() => {
-    // enterDevFields()
+    enterDevFields()
   })
 </script>
 
@@ -320,6 +335,7 @@
     <div class="form-container">
       <h2>ARC Form (Demo)</h2>
       <p>please fill out the below fields and draw your signature.</p>
+      <span>{fieldGroups[1].fields[0].value}</span>
       <form
         bind:this={netlifyForm}
         name="arc"
