@@ -75,14 +75,6 @@ export const fetchNewsMarkdownPosts = async (limit) => {
     return posts.sort((a, b) => Date.parse(b.postData.date) - Date.parse(a.postData.date))
 };
 
-export function getTodaysDate() {
-    const today = new Date()
-    const month = String(today.getMonth() + 1).padStart(2, "0")
-    const day = String(today.getDate()).padStart(2, "0")
-    const year = today.getFullYear()
-
-    return `${ month }-${ day }-${ year }`
-}
 
 // verify sizes of files on upload
 export function checkFileSize(input) {
@@ -133,4 +125,19 @@ export function noNestedObjects(data) {
         }
     }
     return master
+}
+
+export function concatAndCommaSeperate(value) {
+    if (!value) return ""
+
+    // Split the string by comma, optionally followed by a space
+    const categories = value.split(/,\s*/)
+
+    // Trim each category and filter out any empty strings
+    const trimmedCategories = categories
+        .map((category) => category.trim())
+        .filter((category) => category.length > 0)
+
+    // Join the categories back together with ", "
+    return trimmedCategories.join(", ")
 }

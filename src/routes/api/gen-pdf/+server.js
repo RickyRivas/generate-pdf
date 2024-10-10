@@ -190,13 +190,6 @@ export async function POST({ request, fetch }) {
     stream.push(pdfBuffer);
     stream.push(null);
 
-    // artificial delay
-    function artificialDelay(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    await artificialDelay(2000)
-
     return new Response(stream, {
         headers: {
             'Content-Type': 'application/pdf',

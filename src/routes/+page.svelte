@@ -7,14 +7,18 @@
   import SignaturePad from "$lib/components/SignaturePad.svelte"
   import Modal from "$lib/components/Modal.svelte"
   import LoadingStatus from "$lib/components/LoadingStatus.svelte"
-  import { getTodaysDate, checkFileSize } from "$lib/utils"
+  import { checkFileSize, concatAndCommaSeperate } from "$lib/utils"
   import { goto } from "$app/navigation"
   import AgreementModalcontent from "$lib/components/AgreementModalcontent.svelte.svelte"
   import { onMount } from "svelte"
+  import { dev } from "$app/environment"
+  import DayPicker from "$lib/components/DayPicker.svelte"
+  import moment from "moment"
 
   // gen pdf
   let signaturePad
-  let generatedLink = "xxx"
+  let generatedLink
+  let filename = "Oxford_Park_ARC_Request.pdf"
 
   // netlify form
   let netlifyForm
@@ -35,27 +39,35 @@
     {
       groupName: "Contact Information",
       fields: [
-        { name: "homeowner-name", label: "Homeowner's Name", value: "", type: "text" },
+        {
+          name: "homeowner-name",
+          label: "Homeowner's Name",
+          value: "",
+          type: "text",
+          required: true,
+        },
         {
           name: "address",
           label: "Address of Property Affected by Proposed Change",
           value: "",
           type: "text",
+          required: true,
         },
-        { name: "number", label: "Telephone Number", value: "", type: "number" },
-        { name: "email", label: "Email Address", value: "", type: "email" },
+        { name: "number", label: "Telephone Number", value: "", type: "number", required: true },
+        { name: "email", label: "Email Address", value: "", type: "email", required: true },
       ],
     },
     {
       groupName: "Project Information",
       fields: [
         {
-          name: "categories",
+          name: "Project Categories",
           label: "Project Categories",
           value: "",
           type: "checkboxes",
+          required: true,
           element: "",
-          projectCategories: [
+          options: [
             {
               id: 1,
               name: "Paint",
@@ -123,31 +135,46 @@
           label: "Briefly describe the proposed modification(s)/alteration(s)",
           value: "",
           type: "textarea",
+          required: true,
         },
-        { name: "performed-by", label: "Work will be performed by", value: "", type: "text" },
-        { name: "start", label: "Desired Start Date", value: "", type: "text" },
-        { name: "end", label: "Anticipated Completion Date", value: "", type: "text" },
+        {
+          name: "performed-by",
+          label: "Work will be performed by",
+          value: "",
+          type: "text",
+          required: true,
+        },
+        {
+          name: "contractor-phone",
+          label: "Contractor Phone (if applicable)",
+          value: "",
+          type: "text",
+          required: false,
+        },
+        {
+          name: "start",
+          label: "Desired Start Date",
+          value: "",
+          type: "text",
+          datepicker: true,
+          required: true,
+        },
+        {
+          name: "end",
+          label: "Anticipated Completion Date",
+          value: "",
+          type: "text",
+          datepicker: true,
+          required: true,
+        },
       ],
     },
   ]
 
-  function formatCategories(value) {
-    if (!value) return ""
-
-    // Split the string by comma, optionally followed by a space
-    const categories = value.split(/,\s*/)
-
-    // Trim each category and filter out any empty strings
-    const trimmedCategories = categories
-      .map((category) => category.trim())
-      .filter((category) => category.length > 0)
-
-    // Join the categories back together with ", "
-    return trimmedCategories.join(", ")
-  }
-
   //
-  $: fieldGroups[1].fields[0].value = formatCategories(fieldGroups[1].fields[0].value.toString())
+  $: fieldGroups[1].fields[0].value = concatAndCommaSeperate(
+    fieldGroups[1].fields[0].value.toString()
+  )
   $: if (!fieldGroups[1].fields[0].value) fieldGroups[1].fields[0].value = "Other"
 
   function enterDevFields() {
@@ -155,16 +182,18 @@
     fieldGroups[0].fields[1].value = "1600 Pennsylvania Avenue NW, Washington, DC 20500"
     fieldGroups[0].fields[2].value = "9181237266"
     fieldGroups[0].fields[3].value = "me@gmail.com"
-    fieldGroups[1].fields[0].value = ""
+    fieldGroups[1].fields[0].value = "Landscaping, Solar Panels"
     fieldGroups[1].fields[1].value =
       "I plan to install a new wooden fence around the backyard perimeter. The fence will be 6 feet tall and approximately 120 linear feet in total length. It will be constructed using pressure-treated pine boards with a natural finish."
     fieldGroups[1].fields[2].value = "contractor"
-    fieldGroups[1].fields[3].value = "10-24-24"
-    fieldGroups[1].fields[4].value = "10-30-24"
+    fieldGroups[1].fields[3].value = "9181234567"
+    fieldGroups[1].fields[4].value = "December 25, 2024"
+    fieldGroups[1].fields[5].value = "January 2, 2025"
+    acceptedAgreement = true
+    date = getTodaysDate()
   }
 
   let date = ""
-
   let fileUploadInputs = [
     {
       id: "supporting_file",
@@ -188,6 +217,7 @@
 
   function clearModal() {
     if (success) {
+      clearMemory()
       goto("/")
     }
     message = ""
@@ -250,12 +280,11 @@
       generatedLink = window.URL.createObjectURL(blob)
 
       // submit netlify form with both the PDF & the additional attachment
-      const nameOfGeneratedPdfFile = "Oxford_Park_ARC_Request.pdf"
-      const generatedPdfFile = new File([blob], nameOfGeneratedPdfFile, { type: "application/pdf" })
+      const generatedPdfFile = new File([blob], filename, { type: "application/pdf" })
 
       // add the PDF file to the formdate before sending
       const netlifyFormData = new FormData(netlifyForm)
-      netlifyFormData.append("Request_(PDF)", generatedPdfFile, nameOfGeneratedPdfFile)
+      netlifyFormData.append("Request_(PDF)", generatedPdfFile, filename)
 
       // Send to Netlify
       const netlifyResponse = await fetch("/form.html", {
@@ -287,8 +316,17 @@
     }
   }
 
+  function clearMemory() {
+    // temporary URL is revoked to free up memory.
+    window.URL.revokeObjectURL(generatedLink)
+  }
+
+  function getTodaysDate() {
+    return moment().format("MMMM D, YYYY")
+  }
+
   onMount(() => {
-    // enterDevFields()
+    if (dev) enterDevFields()
   })
 </script>
 
@@ -298,15 +336,15 @@
     on:escape={() => {
       clearModal()
     }}>
-    <div class="subscribe-page-modal">
+    <div class="genpdf-modal">
       <LoadingStatus bind:loading bind:success bind:error />
       {#if loading}
         <p>Submitting your form and generating a PDF...</p>
       {/if}
 
       {#if success}
-        <p>{message}</p>
-        <a href={generatedLink} class="downloadbtn btn" target="_blank">
+        <p style:margin-bottom="1em">{message}</p>
+        <a href={generatedLink} class="downloadbtn btn" target="_blank" download={filename}>
           <span class="text">Download PDF</span> <span class="screenreader"></span>
           <span class="arrow">
             <svg
@@ -348,25 +386,29 @@
         <input type="hidden" name="form-name" value="arc" />
         <!-- these form fields will be sent, but wont be included in the email -->
         <!-- & will only be part of the generated PDF -->
+
+        <!-- Each section of form -->
         {#each fieldGroups as { fields, groupName }}
+          <!-- Title of each section -->
           <h3>{groupName}</h3>
+          <!-- fields -->
           {#each fields as field}
             <!-- if checkboxes field -->
             {#if field.type === "checkboxes"}
               <div class="form-control">
-                <label for="project categories">
-                  Project categories
+                <label for={field.name}>
+                  {field.name}
                   <input
                     bind:this={field.element}
                     class="custom-hidden-form-input"
                     type="text"
-                    name="project categories"
+                    name={field.name}
                     data-value={field.value ? field.value : "Other"}
-                    required
+                    required={field.required}
                     value={field.value ? field.value : "Other"} />
                 </label>
                 <div class="checkbox-group">
-                  {#each field.projectCategories as option}
+                  {#each field.options as option}
                     <label for={`option-${option.id}`}>
                       <input
                         type="checkbox"
@@ -379,13 +421,18 @@
                   {/each}
                 </div>
               </div>
+            {:else if field.datepicker}
+              <!-- fields that need a date picker -->
+              <div class="form-control">
+                <DayPicker bind:value={field.value} label={field.label} />
+              </div>
             {:else}
               <!-- all other inputs -->
               <InputField
                 name={field.name}
                 label={field.label}
                 type={field.type}
-                required={true}
+                required={field.required}
                 bind:value={field.value} />
             {/if}
           {/each}
