@@ -35,7 +35,7 @@
   let acceptedAgreement = false
 
   // form fields
-  const fieldGroups = [
+  let fieldGroups = [
     {
       groupName: "Contact Information",
       fields: [
@@ -226,6 +226,9 @@
     loading = false
     error = false
     modalPreventEsc = true
+
+    // reset
+    window.location.reload()
   }
 
   async function genPdf() {
@@ -326,7 +329,7 @@
   }
 
   onMount(() => {
-    if (dev) enterDevFields()
+    // if (dev) enterDevFields()
   })
 </script>
 
@@ -371,8 +374,12 @@
 <main>
   <section id="hero">
     <div class="form-container">
-      <h2>ARC Form (Demo)</h2>
-      <p>please fill out the below fields and draw your signature.</p>
+      <h2>ARC Form Submission</h2>
+      <p>
+        Please complete the 3 sections below, upload supporting documents, and draw your signature
+        before submitting to the OPHOA ARC Committee. You will be given the option to download your
+        submission as a PDF.
+      </p>
       <form
         bind:this={netlifyForm}
         name="arc"
